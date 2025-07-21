@@ -42,14 +42,14 @@ class ResearchOutputPayloadBase(BaseModel):
 
 # --- 五种研究类型的具体输出定义 ---
 
-class ImprovementOutputPayload(BaseModel):
+class ImprovementOutputPayload(ResearchOutputPayloadBase):
     """'Improvement' 类型的研究成果。"""
     type: Literal["improvement"] = "improvement"
     performance_gain: List[PerformanceMetrics]
     modified_code_dir: DirectoryPath
     report: PaperContent = Field(..., description="一份简短的报告，阐述改进的方法、实验设置和结果分析。")
 
-class FindingsOutputPayload(BaseModel):
+class FindingsOutputPayload(ResearchOutputPayloadBase):
     """'Findings' 类型的研究成果。"""
     type: Literal["findings"] = "findings"
     report: PaperContent = Field(..., description="详细的研究报告，包含现象分析、实验设计、结果和讨论。")
@@ -57,18 +57,18 @@ class FindingsOutputPayload(BaseModel):
     # 如果 findings 提出了新的 benchmark，这里会有初步实现
     proposed_benchmark_package: Optional[DirectoryPath] = Field(None, description="如果适用，包含新提出的 Benchmark 的原型代码和数据。")
 
-class SurveyOutputPayload(BaseModel):
+class SurveyOutputPayload(ResearchOutputPayloadBase):
     """'Survey' 类型的研究成果。"""
     type: Literal["survey"] = "survey"
     report: PaperContent
 
-class BenchmarkOutputPayload(BaseModel):
+class BenchmarkOutputPayload(ResearchOutputPayloadBase):
     """'Benchmark' 类型的研究成果。"""
     type: Literal["benchmark"] = "benchmark"
     benchmark_package: DirectoryPath = Field(..., description="完整的、可执行的新 Benchmark 包，包含数据、评测脚本和文档。")
     report: PaperContent = Field(..., description="一份描述该 Benchmark 设计理念、构建过程和统计特性的技术论文。")
 
-class TechniqueReportOutputPayload(BaseModel):
+class TechniqueReportOutputPayload(ResearchOutputPayloadBase):
     """'Technique Report' 类型的研究成果。"""
     type: Literal["technique_report"] = "technique_report"
     performance_on_target_tasks: List[PerformanceMetrics]

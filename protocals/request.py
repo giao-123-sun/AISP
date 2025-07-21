@@ -47,7 +47,7 @@ class ResearchPayloadBase(BaseModel):
 
 # --- 五种研究类型的具体输入定义 ---
 
-class ImprovementRequestPayload(BaseModel):
+class ImprovementRequestPayload(ResearchPayloadBase):
     """'Improvement' 类型的研究任务详情。"""
     type: Literal["improvement"] = "improvement"
     topic: str = "改进现有基线在特定任务上的表现"
@@ -64,7 +64,7 @@ class ImprovementRequestPayload(BaseModel):
         description="需要被改进的基线方法。"
     )
 
-class FindingsRequestPayload(BaseModel):
+class FindingsRequestPayload(ResearchPayloadBase):
     """'Findings' 类型的研究任务详情。"""
     type: Literal["findings"] = "findings"
     topic: str = Field(..., description="研究现象或主题的清晰描述，例如 '分析大型语言模型在数学推理中的“抄捷径”现象'。")
@@ -81,7 +81,7 @@ class FindingsRequestPayload(BaseModel):
         description="研究所需的私有数据集目录。"
     )
 
-class SurveyRequestPayload(BaseModel):
+class SurveyRequestPayload(ResearchPayloadBase):
     """'Survey' 类型的研究任务详情。"""
     type: Literal["survey"] = "survey"
     topic: str = Field(..., description="综述的核心主题，例如 '自主语言 Agent 的记忆机制研究综述'。")
@@ -91,7 +91,7 @@ class SurveyRequestPayload(BaseModel):
         description="这篇综述需要回答的关键问题列表。"
     )
 
-class BenchmarkRequestPayload(BaseModel):
+class BenchmarkRequestPayload(ResearchPayloadBase):
     """'Benchmark' 类型的研究任务详情。"""
     type: Literal["benchmark"] = "benchmark"
     domain: str = Field(..., description="新基准所属的领域，例如 '多模态 Agent 的工具使用能力'。")
@@ -99,7 +99,7 @@ class BenchmarkRequestPayload(BaseModel):
     data_source_description: str = Field(..., description="构建该基准所需的数据来源和初步处理方案。")
     draft_eval_metrics: List[str] = Field(..., description="草拟的评测指标列表，例如 ['任务成功率', '步骤效率', 'API 调用合规性']。")
 
-class TechniqueReportPayload(BaseModel):
+class TechniqueReportPayload(ResearchPayloadBase):
     """'Technique Report' 类型的研究任务详情。"""
     type: Literal["technique_report"] = "technique_report"
     technique_name: str = Field(..., description="新模型、系统或协议的名称。")
@@ -129,7 +129,7 @@ class ResearchRequest(BaseModel):
     ] = Field(..., description='type')
 
     # 评估流程定义，直接关联到最终的 '出口'
-    evaluation_flow: List[Literal["DeepReviewer", "CodeAgent", "AISB_Evaluator"]] = Field(
-        ...,
-        description="根据研究类型预设的评估流程。例如, 'improvement' 类型应为 ['DeepReviewer', 'CodeAgent', 'AISB_Evaluator']。"
-    )
+    # evaluation_flow: List[Literal["DeepReviewer", "CodeAgent", "AISB_Evaluator"]] = Field(
+    #     ...,
+    #     description="根据研究类型预设的评估流程。例如, 'improvement' 类型应为 ['DeepReviewer', 'CodeAgent', 'AISB_Evaluator']。"
+    # )
