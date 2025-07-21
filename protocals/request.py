@@ -33,10 +33,24 @@ class Baseline(BaseModel):
         description="一组在研究过程中不允许被 AI 修改的文件列表，通常包括评测逻辑和结果打印部分。"
     )
 
+# --- L1 元类型：抽象的研究负载基类 ---
+
+class ResearchPayloadBase(BaseModel):
+    """
+    【L1 元类型】所有具体研究请求负载的抽象基类。
+    它定义了所有研究任务共有的字段。
+    """
+    # 这个 'type' 字段是实现“可辨识联合类型”的关键。
+    # 每个子类都必须用一个字面量来覆盖它。
+    type: str = Field(..., description="定义研究类型的唯一标识符。")
+    topic: str = Field(..., description="对研究主题或核心目标的高度概括性描述。")
+
 # --- 五种研究类型的具体输入定义 ---
 
 class ImprovementRequestPayload(BaseModel):
     """'Improvement' 类型的研究任务详情。"""
+    type: Literal["improvement"] = "improvement"
+    topic: str = "改进现有基线在特定任务上的表现"
     task_id: str = Field(
         ..., 
         description="要挑战的 AISB 任务的唯一 ID，例如 'agent-swe-bench-v1'。"
@@ -52,6 +66,7 @@ class ImprovementRequestPayload(BaseModel):
 
 class FindingsRequestPayload(BaseModel):
     """'Findings' 类型的研究任务详情。"""
+    type: Literal["findings"] = "findings"
     topic: str = Field(..., description="研究现象或主题的清晰描述，例如 '分析大型语言模型在数学推理中的“抄捷径”现象'。")
     hypotheses: List[str] = Field(
         default_factory=list,
@@ -68,6 +83,7 @@ class FindingsRequestPayload(BaseModel):
 
 class SurveyRequestPayload(BaseModel):
     """'Survey' 类型的研究任务详情。"""
+    type: Literal["survey"] = "survey"
     topic: str = Field(..., description="综述的核心主题，例如 '自主语言 Agent 的记忆机制研究综述'。")
     scope: str = Field(..., description="综述的范围和边界，例如 '主要关注 2023 年至今的长短期记忆模块设计'。")
     key_questions: List[str] = Field(
@@ -77,6 +93,7 @@ class SurveyRequestPayload(BaseModel):
 
 class BenchmarkRequestPayload(BaseModel):
     """'Benchmark' 类型的研究任务详情。"""
+    type: Literal["benchmark"] = "benchmark"
     domain: str = Field(..., description="新基准所属的领域，例如 '多模态 Agent 的工具使用能力'。")
     task_description: str = Field(..., description="对新基准要评测的核心能力的详细描述。")
     data_source_description: str = Field(..., description="构建该基准所需的数据来源和初步处理方案。")
@@ -84,6 +101,7 @@ class BenchmarkRequestPayload(BaseModel):
 
 class TechniqueReportPayload(BaseModel):
     """'Technique Report' 类型的研究任务详情。"""
+    type: Literal["technique_report"] = "technique_report"
     technique_name: str = Field(..., description="新模型、系统或协议的名称。")
     abstract: str = Field(..., description="对该技术的简短摘要，说明其核心思想和目标。")
     target_tasks: List[str] = Field(
@@ -100,13 +118,6 @@ class ResearchRequest(BaseModel):
     """
     request_id: str = Field(..., description="本次研究请求的唯一标识符。")
     
-    research_type: Literal[
-        "improvement", 
-        "findings", 
-        "survey", 
-        "benchmark", 
-        "technique_report"
-    ] = Field(..., description="研究的五种核心类型之一。")
 
     # 根据 research_type 动态选择对应的 payload
     payload: Union[
@@ -115,7 +126,7 @@ class ResearchRequest(BaseModel):
         SurveyRequestPayload,
         BenchmarkRequestPayload,
         TechniqueReportPayload
-    ] = Field(..., description="与研究类型对应的具体任务负载。")
+    ] = Field(..., description='type')
 
     # 评估流程定义，直接关联到最终的 '出口'
     evaluation_flow: List[Literal["DeepReviewer", "CodeAgent", "AISB_Evaluator"]] = Field(
